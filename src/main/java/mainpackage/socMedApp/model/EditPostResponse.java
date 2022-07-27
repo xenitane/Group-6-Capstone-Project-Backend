@@ -1,21 +1,8 @@
 package mainpackage.socMedApp.model;
 
-public class PostResponse {
-
+public class EditPostResponse {
     private long httpStatus;
     private String responseMessage;
-
-    private String postId;
-
-    public String getPostId() {
-        return postId;
-    }
-
-    public void setPostId(String postId) {
-        this.postId = postId;
-    }
-
-
 
     public long getHttpStatus() {
         return httpStatus;

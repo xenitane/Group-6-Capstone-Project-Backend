@@ -1,10 +1,7 @@
 package mainpackage.socMedApp.controller;
 
-import mainpackage.socMedApp.model.GetPostByIdResponse;
-import mainpackage.socMedApp.model.Post;
-import mainpackage.socMedApp.model.PostResponse;
+import mainpackage.socMedApp.model.*;
 import mainpackage.socMedApp.service.PostService;
-import mainpackage.socMedApp.util.Generator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +20,23 @@ public class PostController {
         return postResponse;
     }
 
-    @GetMapping(value = "/post/{postId}")
+    @GetMapping(value = "/get_post/{postId}")
     public GetPostByIdResponse getPost(@PathVariable String postId){
-
         return postService.getPostById(postId);
-
     }
+
+    @DeleteMapping(value = "/delete_post/{postId}")
+    public DeletePostResponse deleteProduct(@PathVariable String postId) {
+        return postService.deletePost(postId);
+    }
+
+//    @PutMapping(value = "/edit_post")
+//    public EditPostResponse EditPost(@RequestBody Post post) {
+//        return postService.editPost(post);
+//    }
+@PutMapping(value = "/edit_post/{postId}")
+public EditPostResponse EditPost(@PathVariable String postId, @RequestBody Post post) {
+    return postService.editPost(postId,post);
+}
+
 }

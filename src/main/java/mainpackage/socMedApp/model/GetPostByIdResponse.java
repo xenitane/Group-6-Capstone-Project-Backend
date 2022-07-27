@@ -4,7 +4,7 @@ import java.util.List;
 
 public class GetPostByIdResponse {
 
-    private Post post_data;
+    private Post postData;
     private List<String> commentIds;
     private long timestamp;
 
@@ -30,18 +30,18 @@ public class GetPostByIdResponse {
     @Override
     public String toString() {
         return "GetPostByIdResponse{" +
-                "post_data=" + post_data +
+                "post_data=" + postData +
                 ", commentIds=" + commentIds +
                 ", timestamp=" + timestamp +
                 '}';
     }
 
-    public Post getPost_data() {
-        return post_data;
+    public Post getPostData() {
+        return postData;
     }
 
-    public void setPost_data(Post post_data) {
-        this.post_data = post_data;
+    public void setPostData(Post post_data) {
+        this.postData = post_data;
     }
 
     public List<String> getCommentIds() {
