@@ -4,6 +4,8 @@ public class EditCommentRequest {
     private String commentId;
     private String userId;
 
+    private String commentData;
+
     public String getUserId() {
         return userId;
     }
@@ -20,7 +22,7 @@ public class EditCommentRequest {
         this.commentData = commentData;
     }
 
-    private String commentData;
+
 
     public String getCommentId() {
         return commentId;

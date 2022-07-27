@@ -1,9 +1,6 @@
 package mainpackage.socMedApp.service;
 
-import mainpackage.socMedApp.model.Comment;
-import mainpackage.socMedApp.model.CommentResponse;
-import mainpackage.socMedApp.model.DeleteCommentRequest;
-import mainpackage.socMedApp.model.EditCommentRequest;
+import mainpackage.socMedApp.model.*;
 import mainpackage.socMedApp.repository.CommentRepository;
 import mainpackage.socMedApp.util.Generator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,32 +38,41 @@ public class CommentService {
     public void delete(DeleteCommentRequest deleteCommentRequest) {
         /* return deletecommentresponse
          */
+        DeleteCommentResponse deleteCommentResponse= new DeleteCommentResponse();
 
         Optional<Comment> optionalComment = commentRepository.findById(deleteCommentRequest.getCommentId());
         if (optionalComment.isEmpty()) {
 /* to do response data and exception handling*/
+            deleteCommentResponse.setDeleteCommentStatus(400);
+            deleteCommentResponse.getDeleteCommentMessage("Comment not found");
+
         } else {
             if (optionalComment.get().getAuthorId().equals(deleteCommentRequest.getAuthorId())) {
                 commentRepository.deleteById(deleteCommentRequest.getCommentId());
+
+                deleteCommentResponse.setDeleteCommentStatus(201);
+                deleteCommentResponse.setDeleteCommentMessage("Comment deleted successfully");
             }
         }
     }
 
-    public void edit_comment(EditCommentRequest editCommentRequest) {
+    public EditCommentResponse edit_comment(EditCommentRequest editCommentRequest) {
         /* return deletecommentresponse
          */
+        EditCommentResponse editCommentResponse= new EditCommentResponse();
 
-//        Optional<Comment> optionalComment1 = commentRepository.findById(editCommentRequest.getCommentId());
         Comment comment=commentRepository.findById(editCommentRequest.getCommentId()).orElse(null);
         if (comment==null) {
-            /*
-             * todo response */
+            editCommentResponse.setEditCommentStatus(400);
+            editCommentResponse.setEditCommentMessage("No existing comment to edit");
         } else {
             if(comment.getAuthorId().equals(editCommentRequest.getUserId())) {
+
                 comment.setContent(editCommentRequest.getCommentData());
                 commentRepository.save(comment);
-            }else{
 
+                editCommentResponse.setEditCommentStatus(201);
+                editCommentResponse.setEditCommentMessage("Comment successfully updated");
             }
         }
     }
