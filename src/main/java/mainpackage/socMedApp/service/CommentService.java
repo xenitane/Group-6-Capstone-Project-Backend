@@ -4,6 +4,7 @@ import mainpackage.socMedApp.model.Comment;
 import mainpackage.socMedApp.model.CommentResponse;
 import mainpackage.socMedApp.model.DeleteCommentRequest;
 import mainpackage.socMedApp.repository.CommentRepository;
+import mainpackage.socMedApp.util.Generator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,10 @@ public class CommentService {
         else{
             commentResponse.setCommentStatus(201);
             commentResponse.setCommentMessage("comment posted");
-
+            String commentID;
+            do{
+                commentID= Generator.idGen();
+            }while(commentRepository.existsById(commentID));
             commentRepository.save(comment);
             //todo -- in postrepo update comment array
 
