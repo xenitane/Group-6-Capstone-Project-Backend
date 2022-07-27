@@ -3,6 +3,7 @@ package mainpackage.socMedApp.service;
 import mainpackage.socMedApp.model.*;
 import mainpackage.socMedApp.repository.UserRepository;
 import mainpackage.socMedApp.util.Generator;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCrypt;
@@ -19,7 +20,11 @@ public class UserService {
 
 	public SignUpResponse register(User user) {
 		SignUpResponse signUpResponse = new SignUpResponse();
-		if (userRepository.existsByEmail(user.getEmail())) {
+		if (user == null || user.getEmail() == null || user.getUsername() == null || user.getName() == null || user.getPassword() == null) {
+			signUpResponse.setStatus(false);
+			signUpResponse.setMessage("Some fields are empty.");
+			return signUpResponse;
+		} else if (userRepository.existsByEmail(user.getEmail())) {
 			signUpResponse.setStatus(false);
 			signUpResponse.setMessage("User with this email already exists.");
 			return signUpResponse;
@@ -46,30 +51,38 @@ public class UserService {
 
 	public SignInResponse authenticate(SignInRequest signInRequest) {
 		SignInResponse signInResponse = new SignInResponse();
-		Optional<User> optionalUser = userRepository.findByEmail(signInRequest.getCred());
-		if (optionalUser.isEmpty()) optionalUser = userRepository.findByUsername(signInRequest.getCred());
-		if (optionalUser.isPresent()) {
-			String hashedPass = BCrypt.hashpw(signInRequest.getPassword() + pepper, optionalUser.get().getSalt());
-			System.out.println(1 + signInRequest.getPassword() + pepper);
-			System.out.println(hashedPass);
-			System.out.println(optionalUser.get().getPassword());
-			if (hashedPass.equals(optionalUser.get().getPassword())) {
-				signInResponse.setStatus(true);
-				signInResponse.setMessage("Successfully logged in.");
-				signInResponse.setUserID(optionalUser.get().getId());
-			} else {
-				signInResponse.setStatus(false);
-				signInResponse.setMessage("Incorrect password. Try Again.");
-				signInResponse.setUserID(null);
-			}
+		if (signInRequest == null || signInRequest.getCred() == null || signInRequest.getPassword() == null) {
+			signInResponse.setStatus(false);
+			signInResponse.setMessage("Some fields are empty.");
+			return signInResponse;
+		}
+		User user = userRepository.findByUsername(signInRequest.getCred()).orElse(userRepository.findByEmail(signInRequest.getCred()).orElse(null));
+		if (user == null) {
+			signInResponse.setStatus(false);
+			signInResponse.setMessage("User with this email/username does not exist.");
+			return signInResponse;
+		}
+		if (BCrypt.hashpw(signInRequest.getPassword() + pepper, user.getSalt()).equals(user.getPassword())) {
+			signInResponse.setStatus(true);
+			signInResponse.setMessage("Signed in successfully.");
+			signInResponse.setUserID(user.getId());
 		} else {
 			signInResponse.setStatus(false);
-			signInResponse.setMessage("This user does not exist. Check the credentials or register as new user.");
+			signInResponse.setMessage("Incorrect Password.");
 		}
 		return signInResponse;
 	}
 
-	public UserResponse getUser(String username) {
-		return new UserResponse(userRepository.findByUsername(username).orElse(null));
+	public ProfileResponse getUser(String username) {
+		ProfileResponse profileResponse = new ProfileResponse();
+		profileResponse.setProfile(userRepository.findByUsername(username).orElse(null));
+		if (profileResponse.getProfile() == null) {
+			profileResponse.setStatus(false);
+			profileResponse.setMessage("No user with this username.");
+		} else {
+			profileResponse.setStatus(true);
+			profileResponse.setMessage("Here is the profile of user " + username + ".");
+		}
+		return profileResponse;
 	}
 }
