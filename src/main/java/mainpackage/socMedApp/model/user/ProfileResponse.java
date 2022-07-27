@@ -1,4 +1,4 @@
-package mainpackage.socMedApp.model;
+package mainpackage.socMedApp.model.user;
 
 import lombok.Getter;
 import lombok.Setter;

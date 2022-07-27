@@ -1,9 +1,10 @@
 package mainpackage.socMedApp.repository;
 
-import mainpackage.socMedApp.model.Post;
+import mainpackage.socMedApp.model.post.Post;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+import java.util.List;
+
 public interface PostRepository extends MongoRepository<Post, String> {
-    Post findByPostId(String postId);
-    Post deleteByPostId(String postId);
+	public List<Post> findAllByAuthorId(String authorId);
 }
