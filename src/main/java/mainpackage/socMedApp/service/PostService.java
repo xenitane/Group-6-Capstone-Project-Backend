@@ -1,116 +1,166 @@
 package mainpackage.socMedApp.service;
 
 
-import mainpackage.socMedApp.model.*;
+import mainpackage.socMedApp.model.DeletePostRequest;
+import mainpackage.socMedApp.model.ReactResponse;
+import mainpackage.socMedApp.model.post.*;
+import mainpackage.socMedApp.model.user.ProfileHead;
+import mainpackage.socMedApp.model.user.User;
+import mainpackage.socMedApp.model.user.UserRole;
 import mainpackage.socMedApp.repository.PostRepository;
+import mainpackage.socMedApp.repository.UserRepository;
 import mainpackage.socMedApp.util.Generator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class PostService {
 
-    @Autowired
-    PostRepository postRepository;
+	@Autowired
+	PostRepository postRepository;
+	@Autowired
+	UserRepository userRepository;
 
-    public PostResponse savePost(Post post){
-
-        try{
-            String postID=Generator.IDGen();
-
-            while(postRepository.existsById(postID))postID=Generator.IDGen();
-
-            post.setPostId(postID);
-            Post savedPost = postRepository.save(post);
-
-            if (savedPost != null){
-                PostResponse postResponse = new PostResponse();
-                postResponse.setHttpStatus(201);
-                postResponse.setPostId(postID);
-                postResponse.setResponseMessage("Post created successfully");
-
-                return postResponse;
-            } else {
-                PostResponse postResponse = new PostResponse();
-                postResponse.setHttpStatus(500);
-                postResponse.setResponseMessage("Error in creating post");
-
-                return postResponse;
-            }
-        } catch (Exception e){
-            PostResponse postResponse = new PostResponse();
-            postResponse.setHttpStatus(404);
-            postResponse.setResponseMessage("Error in creating post : " + e);
-
-            return postResponse;
-        }
-
-
-    }
-
-
-    public GetPostByIdResponse getPostById(String postId){
-        try {
-            Post post = postRepository.findByPostId(postId);
-            GetPostByIdResponse postByIdResponse = new GetPostByIdResponse();
-            postByIdResponse.setStatus("200");
-            if (post == null){
-                postByIdResponse.setMessage("No post found");
-            } else {
-                postByIdResponse.setPostData(post);
-                postByIdResponse.setCommentIds(post.getCommentIdsWhoCommentedThisPost());
-                postByIdResponse.setTimestamp(post.getTimestamp());
-                postByIdResponse.setMessage("Post found");
-            }
-
-            return postByIdResponse;
-
-        } catch (Exception e){
-            GetPostByIdResponse postByIdResponse = new GetPostByIdResponse();
-            postByIdResponse.setStatus("404");
-            postByIdResponse.setMessage("Error in getting post by id");
-            return postByIdResponse;
-        }
+	public PostResponse savePost(Post post) {
+		PostResponse postResponse = new PostResponse();
+		if (post == null || post.getTimestamp() == null || post.getContentType() == null) {
+			postResponse.setStatus(false);
+			postResponse.setMessage("invalid post");
+			return postResponse;
+		}
+		if (!userRepository.existsById(post.getAuthorId())) {
+			postResponse.setStatus(false);
+			postResponse.setMessage("Sign up to create a post.");
+			return postResponse;
+		}
+		boolean text = post.getContentType() == PostContentType.TEXT;
+		boolean image = post.getContentType() == PostContentType.IMAGE;
+		boolean emptyText = post.getText() == null || post.getText().length() == 0;
+		boolean emptyImage = post.getImageURL() == null || post.getImageURL().length() == 0;
+		boolean emptyCaption = post.getImageCaption() == null || post.getImageCaption().length() == 0;
+		if (!(text && emptyCaption && emptyImage && !emptyText) && !(image && emptyText && !emptyImage)) {
+			postResponse.setStatus(false);
+			postResponse.setMessage("Invalid post parameters");
+		} else {
+			String postId;
+			do postId = Generator.idGen(); while (postRepository.existsById(postId));
+			post.setId(postId);
+			post.setLikeCount(0);
+			post.setCommentCount(0);
+			post.setUserIdsWhoLikedThisPost(new HashSet<>());
+			post.setCommentIDsOnThisPost(new HashSet<>());
+			postResponse.setStatus(true);
+			postResponse.setMessage("Saving post");
+			postResponse.setPostId(postId);
+			postRepository.save(post);
+		}
+		return postResponse;
+	}
 
 
+	public GetPostByIdResponse getPostById(String postId, String currentUserId) {
+		GetPostByIdResponse getPostByIdResponse = new GetPostByIdResponse();
+		Post post = postRepository.findById(postId).orElse(null);
+		PostBody postBody = post == null ? null : new PostBody(post, currentUserId, new ProfileHead(userRepository.findById(post.getAuthorId()).orElse(null)));
+		if (postBody == null) {
+			getPostByIdResponse.setStatus(false);
+			getPostByIdResponse.setMessage("Not post with this id");
+		} else {
+			getPostByIdResponse.setStatus(true);
+			getPostByIdResponse.setMessage("post found");
+			getPostByIdResponse.setPostBody(postBody);
+		}
+		return getPostByIdResponse;
+	}
 
-    }
+	public DeletePostResponse deletePost(String postId, DeletePostRequest deletePostRequest) {
+		DeletePostResponse deletePostResponse = new DeletePostResponse();
+		Post post = postRepository.findById(postId).orElse(null);
+		if (post == null) {
+			deletePostResponse.setStatus(false);
+			deletePostResponse.setMessage("Post not found");
+			return deletePostResponse;
+		}
+		User user = userRepository.findById(deletePostRequest.getCurrentUserId()).orElse(null);
+		boolean deletePermission = user != null && (post.getAuthorId().equals(user.getId()) || user.getRole() == UserRole.ADMIN);
+		if (deletePermission) {
+			postRepository.delete(post);
+			deletePostResponse.setStatus(true);
+			deletePostResponse.setMessage("Post deleted successfully");
+		} else {
+			deletePostResponse.setStatus(false);
+			deletePostResponse.setMessage("You don't have permission to delete this post");
+		}
+		return deletePostResponse;
+	}
 
-    public DeletePostResponse deletePost(String postId) {
-        Post post = postRepository.deleteByPostId(postId);
-        DeletePostResponse deletePostResponse = new DeletePostResponse();
-        if(post==null){
-            deletePostResponse.setResponseMessage("No post found!");
-            deletePostResponse.setHttpStatus(404);
-            return deletePostResponse;
-        }else{
-            deletePostResponse.setHttpStatus(200);
-            deletePostResponse.setResponseMessage("post deleted successfully!");
-            return deletePostResponse;
-        }
-    }
+	//
+	public EditPostResponse editPost(String postId, EditPostRequest editPostRequest) {
+		EditPostResponse editPostResponse = new EditPostResponse();
+		editPostResponse.setStatus(false);
+		Post existingPost = postRepository.findById(postId).orElse(null);
+		if (existingPost == null) {
+			editPostResponse.setMessage("post not found");
+			return editPostResponse;
+		}
+		boolean text = existingPost.getContentType() == PostContentType.TEXT;
+		User user = userRepository.findById(editPostRequest.getCurrentUserId()).orElse(null);
+		boolean editPermission = user != null && existingPost.getAuthorId().equals(editPostRequest.getCurrentUserId());
+		if (!editPermission) {
+			editPostResponse.setMessage("You don't have permission to edit this post.");
+		} else if (text && (editPostRequest.getPostData() == null || editPostRequest.getPostData().length() == 0)) {
+			editPostResponse.setMessage("Invalid data sent.");
+		} else {
+			if(text)existingPost.setText(editPostRequest.getPostData());
+			else existingPost.setImageCaption(editPostRequest.getPostData());
+			postRepository.save(existingPost);
+			editPostResponse.setStatus(true);
+			editPostResponse.setMessage("Post updated.");
+		}
+		return editPostResponse;
+	}
 
-//
-public EditPostResponse editPost(String postId, Post post) {
-    EditPostResponse editPostResponse = new EditPostResponse();
-    Post existingPost = postRepository.findById(postId).orElse(null);
-    Optional<Post> author = postRepository.findById(post.getUserId());
-    if(existingPost == null){
-        editPostResponse.setResponseMessage("No post found");
-        editPostResponse.setHttpStatus(404);
-        return editPostResponse;
+	public List<ProfileHead> getPostReactors(String postId) {
+		Post post = postRepository.findById(postId).orElse(null);
+		if (post == null) {
+			return null;
+		} else {
+			List<ProfileHead> profileHeadList = new ArrayList<>();
+			for (String userId : post.getUserIdsWhoLikedThisPost())
+				profileHeadList.add(new ProfileHead(userRepository.findById(userId).orElse(null)));
+			return profileHeadList;
+		}
+	}
 
-    }else {
-        existingPost.setCaption(post.getCaption());
-        existingPost.setText(post.getText());
-        postRepository.save(existingPost);
-        editPostResponse.setHttpStatus(200);
-        editPostResponse.setResponseMessage("post updated successfully!");
-        return editPostResponse;
-    }
+	public List<PostBody> getPostsByUserId(String userId, String currentUserId) {
+		if (!userRepository.existsById(userId)) return new ArrayList<>();
+		List<Post> postsByUser = postRepository.findAllByAuthorId(userId);
+		List<PostBody> postBodiesByUserList = new ArrayList<>();
+		for (Post post : postsByUser)
+			postBodiesByUserList.add(new PostBody(post, currentUserId, new ProfileHead(userRepository.findById(post.getAuthorId()).orElse(null))));
+		return postBodiesByUserList;
+	}
 
-}
-
+	public ReactResponse doReaction(String postId, String currentUserId) {
+		ReactResponse reactResponse = new ReactResponse();
+		Post post = postRepository.findById(postId).orElse(null);
+		User user = userRepository.findById(currentUserId).orElse(null);
+		if (post == null || user == null) {
+			reactResponse.setStatus(false);
+			reactResponse.setMessage("Either the post does not exist or we don't know who you are.");
+		} else {
+			reactResponse.setStatus(true);
+			if (post.addReactor(currentUserId)) reactResponse.setMessage("post liked.");
+			else {
+				post.deleteReactor(currentUserId);
+				reactResponse.setMessage("post unliked.");
+			}
+			postRepository.save(post);
+		}
+		return reactResponse;
+	}
 }

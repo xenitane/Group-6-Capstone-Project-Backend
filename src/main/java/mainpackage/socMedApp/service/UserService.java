@@ -1,15 +1,12 @@
 package mainpackage.socMedApp.service;
 
-import mainpackage.socMedApp.model.*;
+import mainpackage.socMedApp.model.user.*;
 import mainpackage.socMedApp.repository.UserRepository;
 import mainpackage.socMedApp.util.Generator;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -33,11 +30,10 @@ public class UserService {
 			signUpResponse.setMessage("User with this username already exists.");
 			return signUpResponse;
 		}
-		String id = Generator.idGen();
-		while (userRepository.existsById(id)) id = Generator.idGen();
+		String id;
+		do id = Generator.idGen(); while (userRepository.existsById(id));
 		String salt = BCrypt.gensalt();
 		String hashedPass = BCrypt.hashpw(user.getPassword() + pepper, salt);
-		System.out.println(0 + user.getPassword() + pepper);
 		user.setId(id);
 		user.setPassword(hashedPass);
 		user.setSalt(salt);
@@ -73,16 +69,31 @@ public class UserService {
 		return signInResponse;
 	}
 
-	public ProfileResponse getUser(String username) {
+	public ProfileResponse getUser(String userId) {
 		ProfileResponse profileResponse = new ProfileResponse();
-		profileResponse.setProfile(userRepository.findByUsername(username).orElse(null));
+		User user = userRepository.findById(userId).orElse(null);
+		profileResponse.setProfile(user == null ? null : new Profile(user));
 		if (profileResponse.getProfile() == null) {
 			profileResponse.setStatus(false);
 			profileResponse.setMessage("No user with this username.");
 		} else {
 			profileResponse.setStatus(true);
-			profileResponse.setMessage("Here is the profile of user " + username + ".");
+			profileResponse.setMessage("Here is the profile of user " + userId + ".");
 		}
 		return profileResponse;
+	}
+
+	public ProfileHeadResponse getUserHead(String userid) {
+		ProfileHeadResponse profileHeadResponse = new ProfileHeadResponse();
+		User user = userRepository.findById(userid).orElse(null);
+		profileHeadResponse.setProfileHead(user == null ? null : new ProfileHead(user));
+		if (profileHeadResponse.getProfileHead() == null) {
+			profileHeadResponse.setStatus(false);
+			profileHeadResponse.setMessage("No user with this username.");
+		} else {
+			profileHeadResponse.setStatus(true);
+			profileHeadResponse.setMessage("Here is the profile header of user " + userid + ".");
+		}
+		return profileHeadResponse;
 	}
 }
