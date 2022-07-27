@@ -2,9 +2,12 @@ package mainpackage.socMedApp.service;
 
 import mainpackage.socMedApp.model.Comment;
 import mainpackage.socMedApp.model.CommentResponse;
+import mainpackage.socMedApp.model.DeleteCommentRequest;
 import mainpackage.socMedApp.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -29,4 +32,22 @@ public class CommentService {
         }
         return commentResponse;
     }
-}
+
+    public void delete(DeleteCommentRequest deleteCommentRequest) {
+        /* return deletecommentresponse
+         */
+
+        Optional<Comment> optionalComment = commentRepository.findById(deleteCommentRequest.getCommentId());
+        if (optionalComment.isEmpty()) {
+/* to do response data and exception handling*/
+        } else {
+            if (optionalComment.get().getAuthorId().equals(deleteCommentRequest.getAuthorId())) {
+                commentRepository.deleteById(deleteCommentRequest.getCommentId());
+            }
+        }
+    }
+
+
+
+    }
+
