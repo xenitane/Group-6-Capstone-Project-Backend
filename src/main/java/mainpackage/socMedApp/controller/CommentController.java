@@ -1,10 +1,9 @@
 package mainpackage.socMedApp.controller;
 
-import mainpackage.socMedApp.model.Comment;
-import mainpackage.socMedApp.model.CommentResponse;
-import mainpackage.socMedApp.model.DeleteCommentRequest;
-import mainpackage.socMedApp.model.EditCommentRequest;
-import mainpackage.socMedApp.repository.CommentRepository;
+import mainpackage.socMedApp.model.comment.Comment;
+import mainpackage.socMedApp.model.comment.CommentResponse;
+import mainpackage.socMedApp.model.comment.DeleteCommentRequest;
+import mainpackage.socMedApp.model.comment.EditCommentRequest;
 import mainpackage.socMedApp.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

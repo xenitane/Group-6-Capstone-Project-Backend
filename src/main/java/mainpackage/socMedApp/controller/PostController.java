@@ -1,6 +1,6 @@
 package mainpackage.socMedApp.controller;
 
-import mainpackage.socMedApp.model.DeletePostRequest;
+import mainpackage.socMedApp.model.post.DeletePostRequest;
 import mainpackage.socMedApp.model.ReactResponse;
 import mainpackage.socMedApp.model.post.*;
 import mainpackage.socMedApp.service.PostService;
