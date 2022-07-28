@@ -20,7 +20,7 @@ public class UserController {
 
 	@GetMapping(value = "/signin", produces = "application/json")
 	public ResponseEntity<SignInResponse> signin(@RequestHeader("cred") String cred, @RequestHeader("password") String password) {
-		SignInRequest signInRequest=new SignInRequest();
+		SignInRequest signInRequest = new SignInRequest();
 		signInRequest.setCred(cred);
 		signInRequest.setPassword(password);
 		SignInResponse signInResponse = userService.authenticate(signInRequest);

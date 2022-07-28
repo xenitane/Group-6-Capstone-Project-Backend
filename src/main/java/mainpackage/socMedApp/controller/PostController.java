@@ -3,6 +3,7 @@ package mainpackage.socMedApp.controller;
 import mainpackage.socMedApp.model.post.DeletePostRequest;
 import mainpackage.socMedApp.model.ReactResponse;
 import mainpackage.socMedApp.model.post.*;
+import mainpackage.socMedApp.model.user.ProfileHead;
 import mainpackage.socMedApp.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -51,5 +52,11 @@ public class PostController {
 	public ResponseEntity<ReactResponse> reactOnPost(@PathVariable("postId") String postId, @RequestHeader("currentUserId") String currentUserId) {
 		ReactResponse reactResponse = postService.doReaction(postId, currentUserId);
 		return new ResponseEntity<>(reactResponse, reactResponse.isStatus() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+	}
+
+	@GetMapping(value = "/post/{postId}/reactors")
+	public ResponseEntity<List<ProfileHead>> getReactorsByPostId(@PathVariable("postId") String postId) {
+		List<ProfileHead> profileHeadList = postService.getPostReactors(postId);
+		return new ResponseEntity<>(profileHeadList, profileHeadList == null ? HttpStatus.NOT_FOUND : HttpStatus.OK);
 	}
 }

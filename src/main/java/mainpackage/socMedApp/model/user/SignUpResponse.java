@@ -8,5 +8,5 @@ import lombok.Setter;
 public class SignUpResponse {
 	private String message;
 	private boolean status;
-	private String userID;
+	private String userId;
 }

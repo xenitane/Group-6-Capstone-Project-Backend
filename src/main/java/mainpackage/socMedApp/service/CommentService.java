@@ -26,7 +26,7 @@ public class CommentService {
 
 	public CommentResponse postComment(Comment comment) {
 		CommentResponse commentResponse = new CommentResponse();
-		if (comment == null || comment.getTimeStamp() == null) {
+		if (comment == null || comment.getTimestamp() == null) {
 			commentResponse.setStatus(false);
 			commentResponse.setMessage("invalid comment");
 			return commentResponse;
@@ -44,14 +44,17 @@ public class CommentService {
 		}
 		if (comment.getContent() == null || comment.getContent().length() == 0) {
 			commentResponse.setStatus(false);
-			commentResponse.setMessage("invalid comment.");
+			commentResponse.setMessage("invalid comment1.");
 		} else {
+			System.out.println(comment);
 			String commentId;
-			do commentId = Generator.idGen(); while (commentRepository.existsById(commentId));
+			do {
+				commentId = Generator.idGen();
+			} while (commentRepository.existsById(commentId));
 			comment.setId(commentId);
+			commentRepository.save(comment);
 			post.addComment(commentId);
 			postRepository.save(post);
-			commentRepository.save(comment);
 			commentResponse.setCommentId(commentId);
 			commentResponse.setStatus(true);
 			commentResponse.setMessage("Your comment is saved.");
@@ -110,6 +113,7 @@ public class CommentService {
 		if (post == null) return new ArrayList<>();
 		List<CommentBanners> commentBannersList = new ArrayList<>();
 		List<Comment> commentList = (List<Comment>) commentRepository.findAllById(post.getCommentIDsOnThisPost());
+		System.out.println(commentList);
 		for (Comment comment : commentList)
 			commentBannersList.add(new CommentBanners(comment, new ProfileHead(userRepository.findById(comment.getAuthorId()).orElse(null))));
 		return commentBannersList;

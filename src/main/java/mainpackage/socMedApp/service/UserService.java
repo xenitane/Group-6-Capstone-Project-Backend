@@ -40,7 +40,7 @@ public class UserService {
 		user.setRole(UserRole.END_USER);
 		userRepository.save(user);
 		signUpResponse.setStatus(true);
-		signUpResponse.setUserID(id);
+		signUpResponse.setUserId(id);
 		signUpResponse.setMessage("User Successfully registered");
 		return signUpResponse;
 	}
@@ -61,7 +61,7 @@ public class UserService {
 		if (BCrypt.hashpw(signInRequest.getPassword() + pepper, user.getSalt()).equals(user.getPassword())) {
 			signInResponse.setStatus(true);
 			signInResponse.setMessage("Signed in successfully.");
-			signInResponse.setUserID(user.getId());
+			signInResponse.setUserId(user.getId());
 		} else {
 			signInResponse.setStatus(false);
 			signInResponse.setMessage("Incorrect Password.");
