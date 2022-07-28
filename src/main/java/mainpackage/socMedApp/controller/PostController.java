@@ -41,9 +41,9 @@ public class PostController {
 		return new ResponseEntity<>(editPostResponse, editPostResponse.isStatus() ? HttpStatus.OK : HttpStatus.UNAUTHORIZED);
 	}
 
-	@GetMapping(value = "/{userid}/posts")
-	public ResponseEntity<List<PostBody>> getPostsByUserId(@PathVariable("userid") String userId, @RequestHeader("currentUserId") String currentUserId) {
-		List<PostBody> postBodyList = postService.getPostsByUserId(userId, currentUserId);
+	@GetMapping(value = "/{username}/posts")
+	public ResponseEntity<List<PostBody>> getPostsByUsername(@PathVariable("username") String username, @RequestHeader("currentUserId") String currentUserId) {
+		List<PostBody> postBodyList = postService.getPostsByUsername(username, currentUserId);
 		return new ResponseEntity<>(postBodyList, postBodyList == null ? HttpStatus.NOT_FOUND : HttpStatus.OK);
 	}
 

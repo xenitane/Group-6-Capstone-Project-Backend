@@ -140,12 +140,13 @@ public class PostService {
 		}
 	}
 
-	public List<PostBody> getPostsByUserId(String userId, String currentUserId) {
-		if (!userRepository.existsById(userId)) return new ArrayList<>();
-		List<Post> postsByUser = postRepository.findAllByAuthorId(userId);
+	public List<PostBody> getPostsByUsername(String username, String currentUserId) {
+		User user=userRepository.findByUsername(username).orElse(null);
+		if(user==null)return new ArrayList<>();
+		List<Post> postsByUser = postRepository.findAllByAuthorId(user.getId());
 		List<PostBody> postBodiesByUserList = new ArrayList<>();
 		for (Post post : postsByUser)
-			postBodiesByUserList.add(new PostBody(post, currentUserId, new ProfileHead(userRepository.findById(post.getAuthorId()).orElse(null))));
+			postBodiesByUserList.add(new PostBody(post, currentUserId, new ProfileHead(user)));
 		return postBodiesByUserList;
 	}
 

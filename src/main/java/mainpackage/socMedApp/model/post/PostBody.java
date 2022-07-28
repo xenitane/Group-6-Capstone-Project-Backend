@@ -8,7 +8,6 @@ import mainpackage.socMedApp.model.user.ProfileHead;
 @Setter
 public class PostBody {
 	private String id;
-	private String authorId;
 	private Long timestamp;
 	private PostContentType contentType;
 	private String imageURL;
@@ -22,7 +21,6 @@ public class PostBody {
 	public PostBody(Post post, String currentUserId, ProfileHead profileHead) {
 		if (post != null) {
 			this.id = post.getId();
-			this.authorId = post.getAuthorId();
 			this.timestamp = post.getTimestamp();
 			this.commentCount = post.getCommentCount();
 			this.contentType = post.getContentType();
