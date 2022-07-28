@@ -2,7 +2,7 @@ package mainpackage.socMedApp.service;
 
 
 import mainpackage.socMedApp.model.post.DeletePostRequest;
-import mainpackage.socMedApp.model.ReactResponse;
+import mainpackage.socMedApp.model.post.ReactResponse;
 import mainpackage.socMedApp.model.post.*;
 import mainpackage.socMedApp.model.user.ProfileHead;
 import mainpackage.socMedApp.model.user.User;
@@ -150,18 +150,18 @@ public class PostService {
 		return postBodiesByUserList;
 	}
 
-	public ReactResponse doReaction(String postId, String currentUserId) {
+	public ReactResponse doReaction(String postId, ReactRequest reactRequest) {
 		ReactResponse reactResponse = new ReactResponse();
 		Post post = postRepository.findById(postId).orElse(null);
-		User user = userRepository.findById(currentUserId).orElse(null);
+		User user = userRepository.findById(reactRequest.getCurrentUserId()).orElse(null);
 		if (post == null || user == null) {
 			reactResponse.setStatus(false);
 			reactResponse.setMessage("Either the post does not exist or we don't know who you are.");
 		} else {
 			reactResponse.setStatus(true);
-			if (post.addReactor(currentUserId)) reactResponse.setMessage("post liked.");
+			if (post.addReactor(reactRequest.getCurrentUserId())) reactResponse.setMessage("post liked.");
 			else {
-				post.deleteReactor(currentUserId);
+				post.deleteReactor(reactRequest.getCurrentUserId());
 				reactResponse.setMessage("post unliked.");
 			}
 			postRepository.save(post);

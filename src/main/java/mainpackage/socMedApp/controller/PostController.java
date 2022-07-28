@@ -1,7 +1,7 @@
 package mainpackage.socMedApp.controller;
 
 import mainpackage.socMedApp.model.post.DeletePostRequest;
-import mainpackage.socMedApp.model.ReactResponse;
+import mainpackage.socMedApp.model.post.ReactResponse;
 import mainpackage.socMedApp.model.post.*;
 import mainpackage.socMedApp.model.user.ProfileHead;
 import mainpackage.socMedApp.service.PostService;
@@ -31,7 +31,7 @@ public class PostController {
 	}
 
 	@DeleteMapping(value = "/post/{postId}")
-	public ResponseEntity<DeletePostResponse> deleteProduct(@PathVariable String postId, @RequestBody DeletePostRequest deletePostRequest) {
+	public ResponseEntity<DeletePostResponse> deletePost(@PathVariable String postId, @RequestBody DeletePostRequest deletePostRequest) {
 		DeletePostResponse deletePostResponse = postService.deletePost(postId, deletePostRequest);
 		return new ResponseEntity<>(deletePostResponse, deletePostResponse.isStatus() ? HttpStatus.OK : HttpStatus.UNAUTHORIZED);
 	}
@@ -48,9 +48,9 @@ public class PostController {
 		return new ResponseEntity<>(postBodyList, postBodyList == null ? HttpStatus.NOT_FOUND : HttpStatus.OK);
 	}
 
-	@PutMapping(value = "/post/{postId}/react")
-	public ResponseEntity<ReactResponse> reactOnPost(@PathVariable("postId") String postId, @RequestHeader("currentUserId") String currentUserId) {
-		ReactResponse reactResponse = postService.doReaction(postId, currentUserId);
+	@PatchMapping(value = "/post/{postId}/react")
+	public ResponseEntity<ReactResponse> reactOnPost(@PathVariable("postId") String postId,@RequestBody ReactRequest reactRequest) {
+		ReactResponse reactResponse = postService.doReaction(postId, reactRequest);
 		return new ResponseEntity<>(reactResponse, reactResponse.isStatus() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
 	}
 

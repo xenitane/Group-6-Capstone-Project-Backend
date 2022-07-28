@@ -1,7 +1,6 @@
 package mainpackage.socMedApp.controller;
 
 import mainpackage.socMedApp.model.comment.*;
-import mainpackage.socMedApp.model.post.EditPostResponse;
 import mainpackage.socMedApp.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
