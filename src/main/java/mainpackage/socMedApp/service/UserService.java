@@ -24,10 +24,10 @@ public class UserService {
 			signUpResponse.setMessage("Empty request.");
 			return Pair.of(signUpResponse, HttpStatus.BAD_REQUEST);
 		}
-		boolean emptyEmail = user.getEmail() == null || user.getEmail().equals("");
-		boolean emptyUsername = user.getUsername() == null || user.getUsername().equals("");
-		boolean emptyName = user.getName() == null || user.getName().equals("");
-		boolean emptyPassword = user.getPassword() == null || user.getPassword().equals("");
+		boolean emptyEmail = user.getEmail() == null || user.getEmail().trim().isEmpty();
+		boolean emptyUsername = user.getUsername() == null || user.getUsername().trim().isEmpty();
+		boolean emptyName = user.getName() == null || user.getName().trim().isEmpty();
+		boolean emptyPassword = user.getPassword() == null || user.getPassword().trim().isEmpty();
 		if (emptyEmail || emptyUsername || emptyName || emptyPassword) {
 			signUpResponse.setStatus(false);
 			signUpResponse.setMessage("Empty Parameter(s).");
@@ -35,11 +35,11 @@ public class UserService {
 		} else if (userRepository.existsByEmail(user.getEmail())) {
 			signUpResponse.setStatus(false);
 			signUpResponse.setMessage("User with this email already exists.");
-			return Pair.of(signUpResponse, HttpStatus.FORBIDDEN);
+			return Pair.of(signUpResponse, HttpStatus.UNAUTHORIZED);
 		} else if (userRepository.existsByUsername(user.getUsername())) {
 			signUpResponse.setStatus(false);
 			signUpResponse.setMessage("User with this username already exists.");
-			return Pair.of(signUpResponse, HttpStatus.FORBIDDEN);
+			return Pair.of(signUpResponse, HttpStatus.UNAUTHORIZED);
 		}
 		String id;
 		do id = Generator.idGen(); while (userRepository.existsById(id));
@@ -63,8 +63,8 @@ public class UserService {
 			signInResponse.setMessage("Empty Request.");
 			return Pair.of(signInResponse, HttpStatus.BAD_REQUEST);
 		}
-		boolean emptyCred = signInRequest.getCred() == null || signInRequest.getCred().equals("");
-		boolean emptyPassword = signInRequest.getPassword() == null || signInRequest.getPassword().equals("");
+		boolean emptyCred = signInRequest.getCred() == null || signInRequest.getCred().trim().isEmpty();
+		boolean emptyPassword = signInRequest.getPassword() == null || signInRequest.getPassword().trim().isEmpty();
 		if (emptyCred || emptyPassword) {
 			signInResponse.setStatus(false);
 			signInResponse.setMessage("Empty parameters.");
@@ -84,13 +84,13 @@ public class UserService {
 		} else {
 			signInResponse.setStatus(false);
 			signInResponse.setMessage("Incorrect Password.");
-			return Pair.of(signInResponse, HttpStatus.FORBIDDEN);
+			return Pair.of(signInResponse, HttpStatus.UNAUTHORIZED);
 		}
 	}
 
 	public Pair<ProfileResponse, HttpStatus> getUser(String username) {
 		ProfileResponse profileResponse = new ProfileResponse();
-		if (username == null || username.equals("")) {
+		if (username == null || username.trim().isEmpty()) {
 			profileResponse.setStatus(false);
 			profileResponse.setMessage("Looking for a ghost?");
 			return Pair.of(profileResponse, HttpStatus.BAD_REQUEST);
@@ -110,7 +110,7 @@ public class UserService {
 
 	public Pair<ProfileHeadResponse, HttpStatus> getUserHead(String username) {
 		ProfileHeadResponse profileHeadResponse = new ProfileHeadResponse();
-		if (username == null || username.equals("")) {
+		if (username == null || username.trim().isEmpty()) {
 			profileHeadResponse.setStatus(false);
 			profileHeadResponse.setMessage("Looking for a ghost?");
 			return Pair.of(profileHeadResponse, HttpStatus.BAD_REQUEST);
