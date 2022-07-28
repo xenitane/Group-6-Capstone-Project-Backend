@@ -1,12 +1,13 @@
 package mainpackage.socMedApp.service;
 
 
-import mainpackage.socMedApp.model.DeletePostRequest;
+import mainpackage.socMedApp.model.post.DeletePostRequest;
 import mainpackage.socMedApp.model.ReactResponse;
 import mainpackage.socMedApp.model.post.*;
 import mainpackage.socMedApp.model.user.ProfileHead;
 import mainpackage.socMedApp.model.user.User;
 import mainpackage.socMedApp.model.user.UserRole;
+import mainpackage.socMedApp.repository.CommentRepository;
 import mainpackage.socMedApp.repository.PostRepository;
 import mainpackage.socMedApp.repository.UserRepository;
 import mainpackage.socMedApp.util.Generator;
@@ -24,6 +25,8 @@ public class PostService {
 	PostRepository postRepository;
 	@Autowired
 	UserRepository userRepository;
+	@Autowired
+	CommentRepository commentRepository;
 
 	public PostResponse savePost(Post post) {
 		PostResponse postResponse = new PostResponse();
@@ -53,10 +56,10 @@ public class PostService {
 			post.setCommentCount(0);
 			post.setUserIdsWhoLikedThisPost(new HashSet<>());
 			post.setCommentIDsOnThisPost(new HashSet<>());
+			postRepository.save(post);
 			postResponse.setStatus(true);
 			postResponse.setMessage("Saving post");
 			postResponse.setPostId(postId);
-			postRepository.save(post);
 		}
 		return postResponse;
 	}
@@ -89,6 +92,7 @@ public class PostService {
 		boolean deletePermission = user != null && (post.getAuthorId().equals(user.getId()) || user.getRole() == UserRole.ADMIN);
 		if (deletePermission) {
 			postRepository.delete(post);
+			commentRepository.deleteAllById(post.getCommentIDsOnThisPost());
 			deletePostResponse.setStatus(true);
 			deletePostResponse.setMessage("Post deleted successfully");
 		} else {
@@ -102,22 +106,22 @@ public class PostService {
 	public EditPostResponse editPost(String postId, EditPostRequest editPostRequest) {
 		EditPostResponse editPostResponse = new EditPostResponse();
 		editPostResponse.setStatus(false);
-		Post existingPost = postRepository.findById(postId).orElse(null);
-		if (existingPost == null) {
+		Post post = postRepository.findById(postId).orElse(null);
+		if (post == null) {
 			editPostResponse.setMessage("post not found");
 			return editPostResponse;
 		}
-		boolean text = existingPost.getContentType() == PostContentType.TEXT;
+		boolean text = post.getContentType() == PostContentType.TEXT;
 		User user = userRepository.findById(editPostRequest.getCurrentUserId()).orElse(null);
-		boolean editPermission = user != null && existingPost.getAuthorId().equals(editPostRequest.getCurrentUserId());
+		boolean editPermission = user != null && post.getAuthorId().equals(user.getId());
 		if (!editPermission) {
 			editPostResponse.setMessage("You don't have permission to edit this post.");
 		} else if (text && (editPostRequest.getPostData() == null || editPostRequest.getPostData().length() == 0)) {
 			editPostResponse.setMessage("Invalid data sent.");
 		} else {
-			if(text)existingPost.setText(editPostRequest.getPostData());
-			else existingPost.setImageCaption(editPostRequest.getPostData());
-			postRepository.save(existingPost);
+			if (text) post.setText(editPostRequest.getPostData());
+			else post.setImageCaption(editPostRequest.getPostData());
+			postRepository.save(post);
 			editPostResponse.setStatus(true);
 			editPostResponse.setMessage("Post updated.");
 		}
@@ -136,12 +140,13 @@ public class PostService {
 		}
 	}
 
-	public List<PostBody> getPostsByUserId(String userId, String currentUserId) {
-		if (!userRepository.existsById(userId)) return new ArrayList<>();
-		List<Post> postsByUser = postRepository.findAllByAuthorId(userId);
+	public List<PostBody> getPostsByUsername(String username, String currentUserId) {
+		User user=userRepository.findByUsername(username).orElse(null);
+		if(user==null)return new ArrayList<>();
+		List<Post> postsByUser = postRepository.findAllByAuthorId(user.getId());
 		List<PostBody> postBodiesByUserList = new ArrayList<>();
 		for (Post post : postsByUser)
-			postBodiesByUserList.add(new PostBody(post, currentUserId, new ProfileHead(userRepository.findById(post.getAuthorId()).orElse(null))));
+			postBodiesByUserList.add(new PostBody(post, currentUserId, new ProfileHead(user)));
 		return postBodiesByUserList;
 	}
 

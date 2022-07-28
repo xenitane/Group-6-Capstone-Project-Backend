@@ -1,12 +1,11 @@
-package mainpackage.socMedApp.model.user;
+package mainpackage.socMedApp.model.comment;
 
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
-public class SignUpResponse {
+@Setter
+public class EditCommentResponse {
 	private String message;
 	private boolean status;
-	private String userId;
 }

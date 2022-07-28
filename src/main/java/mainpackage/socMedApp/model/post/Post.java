@@ -32,27 +32,21 @@ public class Post {
 		return false;
 	}
 
-	public boolean deleteReactor(String reactorId) {
+	public void deleteReactor(String reactorId) {
 		if (userIdsWhoLikedThisPost.remove(reactorId)) {
 			this.likeCount--;
-			return true;
 		}
-		return false;
 	}
 
-	public boolean addComment(String commentId) {
+	public void addComment(String commentId) {
 		if (commentIDsOnThisPost.add(commentId)) {
 			this.commentCount++;
-			return true;
 		}
-		return false;
 	}
 
-	public boolean removeComment(String commentId) {
+	public void deleteComment(String commentId) {
 		if (commentIDsOnThisPost.remove(commentId)) {
 			this.commentCount--;
-			return true;
 		}
-		return false;
 	}
 }

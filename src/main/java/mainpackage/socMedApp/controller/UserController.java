@@ -20,22 +20,22 @@ public class UserController {
 
 	@GetMapping(value = "/signin", produces = "application/json")
 	public ResponseEntity<SignInResponse> signin(@RequestHeader("cred") String cred, @RequestHeader("password") String password) {
-		SignInRequest signInRequest=new SignInRequest();
+		SignInRequest signInRequest = new SignInRequest();
 		signInRequest.setCred(cred);
 		signInRequest.setPassword(password);
 		SignInResponse signInResponse = userService.authenticate(signInRequest);
 		return new ResponseEntity<>(signInResponse, signInResponse.isStatus() ? HttpStatus.ACCEPTED : HttpStatus.UNAUTHORIZED);
 	}
 
-	@GetMapping(value = "/user/{userId}", produces = "application/json")
-	public ResponseEntity<ProfileResponse> getUserInfo(@PathVariable("userId") String userId) {
-		ProfileResponse userResponse = userService.getUser(userId);
+	@GetMapping(value = "/user/{username}", produces = "application/json")
+	public ResponseEntity<ProfileResponse> getUserInfo(@PathVariable("username") String username) {
+		ProfileResponse userResponse = userService.getUser(username);
 		return new ResponseEntity<>(userResponse, userResponse.isStatus() ? HttpStatus.OK : HttpStatus.NOT_FOUND);
 	}
 
-	@GetMapping(value = "/userhead/{userId}", produces = "application/json")
-	public ResponseEntity<ProfileHeadResponse> getUserHeader(@PathVariable("userId") String userid) {
-		ProfileHeadResponse profileHeadResponse = userService.getUserHead(userid);
+	@GetMapping(value = "/userhead/{username}", produces = "application/json")
+	public ResponseEntity<ProfileHeadResponse> getUserHeader(@PathVariable("username") String username) {
+		ProfileHeadResponse profileHeadResponse = userService.getUserHead(username);
 		return new ResponseEntity<>(profileHeadResponse, profileHeadResponse.isStatus() ? HttpStatus.OK : HttpStatus.NOT_FOUND);
 	}
 }

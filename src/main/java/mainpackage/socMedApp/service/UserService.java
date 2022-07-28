@@ -40,7 +40,7 @@ public class UserService {
 		user.setRole(UserRole.END_USER);
 		userRepository.save(user);
 		signUpResponse.setStatus(true);
-		signUpResponse.setUserID(id);
+		signUpResponse.setUserId(id);
 		signUpResponse.setMessage("User Successfully registered");
 		return signUpResponse;
 	}
@@ -61,7 +61,7 @@ public class UserService {
 		if (BCrypt.hashpw(signInRequest.getPassword() + pepper, user.getSalt()).equals(user.getPassword())) {
 			signInResponse.setStatus(true);
 			signInResponse.setMessage("Signed in successfully.");
-			signInResponse.setUserID(user.getId());
+			signInResponse.setUserId(user.getId());
 		} else {
 			signInResponse.setStatus(false);
 			signInResponse.setMessage("Incorrect Password.");
@@ -71,7 +71,7 @@ public class UserService {
 
 	public ProfileResponse getUser(String userId) {
 		ProfileResponse profileResponse = new ProfileResponse();
-		User user = userRepository.findById(userId).orElse(null);
+		User user = userRepository.findByUsername(userId).orElse(null);
 		profileResponse.setProfile(user == null ? null : new Profile(user));
 		if (profileResponse.getProfile() == null) {
 			profileResponse.setStatus(false);
@@ -85,7 +85,7 @@ public class UserService {
 
 	public ProfileHeadResponse getUserHead(String userid) {
 		ProfileHeadResponse profileHeadResponse = new ProfileHeadResponse();
-		User user = userRepository.findById(userid).orElse(null);
+		User user = userRepository.findByUsername(userid).orElse(null);
 		profileHeadResponse.setProfileHead(user == null ? null : new ProfileHead(user));
 		if (profileHeadResponse.getProfileHead() == null) {
 			profileHeadResponse.setStatus(false);
