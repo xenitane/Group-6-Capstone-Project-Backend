@@ -23,20 +23,25 @@ import java.util.List;
 
 @Service
 public class PostService {
-
+	
 	@Autowired
 	PostRepository postRepository;
 	@Autowired
 	UserRepository userRepository;
 	@Autowired
 	CommentRepository commentRepository;
-
+	
 	public Pair<PostResponse, HttpStatus> savePost(Post post) {
 		PostResponse postResponse = new PostResponse();
 		if (post == null || post.getTimestamp() == null || post.getContentType() == null) {
 			postResponse.setStatus(false);
 			postResponse.setMessage("invalid post.");
 			return Pair.of(postResponse, HttpStatus.BAD_REQUEST);
+		}
+		if (post.getAuthorId() == null || post.getAuthorId().trim().isEmpty()) {
+			postResponse.setStatus(false);
+			postResponse.setMessage("bhooooooooooooooot.");
+			return Pair.of(postResponse, HttpStatus.UNAUTHORIZED);
 		}
 		if (!userRepository.existsById(post.getAuthorId())) {
 			postResponse.setStatus(false);
@@ -45,9 +50,9 @@ public class PostService {
 		}
 		boolean text = post.getContentType() == PostContentType.TEXT;
 		boolean image = post.getContentType() == PostContentType.IMAGE;
-		boolean emptyText = post.getText() == null || post.getText().length() == 0;
-		boolean emptyImage = post.getImageURL() == null || post.getImageURL().length() == 0;
-		boolean emptyCaption = post.getImageCaption() == null || post.getImageCaption().length() == 0;
+		boolean emptyText = post.getText() == null || post.getText().trim().isEmpty();
+		boolean emptyImage = post.getImageURL() == null || post.getImageURL().trim().isEmpty();
+		boolean emptyCaption = post.getImageCaption() == null || post.getImageCaption().trim().isEmpty();
 		if (!(text && emptyCaption && emptyImage && !emptyText) && !(image && emptyText && !emptyImage)) {
 			postResponse.setStatus(false);
 			postResponse.setMessage("Invalid post parameters");
@@ -67,8 +72,8 @@ public class PostService {
 			return Pair.of(postResponse, HttpStatus.CREATED);
 		}
 	}
-
-
+	
+	
 	public Pair<GetPostByIdResponse, HttpStatus> getPostById(String postId, String currentUserId) {
 		GetPostByIdResponse getPostByIdResponse = new GetPostByIdResponse();
 		if (postId == null || postId.trim().isEmpty()) {
@@ -89,7 +94,7 @@ public class PostService {
 			return Pair.of(getPostByIdResponse, HttpStatus.OK);
 		}
 	}
-
+	
 	public Pair<DeletePostResponse, HttpStatus> deletePost(String postId, DeletePostRequest deletePostRequest) {
 		DeletePostResponse deletePostResponse = new DeletePostResponse();
 		if (postId == null || postId.trim().isEmpty()) {
@@ -122,7 +127,7 @@ public class PostService {
 			return Pair.of(deletePostResponse, HttpStatus.UNAUTHORIZED);
 		}
 	}
-
+	
 	//
 	public Pair<EditPostResponse, HttpStatus> editPost(String postId, EditPostRequest editPostRequest) {
 		EditPostResponse editPostResponse = new EditPostResponse();
@@ -162,7 +167,7 @@ public class PostService {
 		editPostResponse.setMessage("Post updated.");
 		return Pair.of(editPostResponse, HttpStatus.ACCEPTED);
 	}
-
+	
 	public Pair<List<ProfileHead>, HttpStatus> getPostReactors(String postId) {
 		if (postId == null || postId.trim().isEmpty())
 			return Pair.of(new ArrayList<>(), HttpStatus.BAD_REQUEST);
@@ -176,7 +181,7 @@ public class PostService {
 			return Pair.of(profileHeadList, HttpStatus.OK);
 		}
 	}
-
+	
 	public Pair<List<PostBody>, HttpStatus> getPostsByUsername(String username, String currentUserId) {
 		if (username == null || username.trim().isEmpty())
 			return Pair.of(new ArrayList<>(), HttpStatus.BAD_REQUEST);
@@ -188,7 +193,7 @@ public class PostService {
 			postBodiesByUserList.add(new PostBody(post, currentUserId, new ProfileHead(user)));
 		return Pair.of(postBodiesByUserList, HttpStatus.OK);
 	}
-
+	
 	public Pair<ReactResponse, HttpStatus> doReaction(String postId, ReactRequest reactRequest) {
 		ReactResponse reactResponse = new ReactResponse();
 		if (postId == null || postId.trim().isEmpty()) {
@@ -202,16 +207,16 @@ public class PostService {
 			reactResponse.setStatus(false);
 			return Pair.of(reactResponse, HttpStatus.BAD_REQUEST);
 		}
-		if(reactRequest.getCurrentUserId()==null||reactRequest.getCurrentUserId().trim().isEmpty()){
+		if (reactRequest.getCurrentUserId() == null || reactRequest.getCurrentUserId().trim().isEmpty()) {
 			reactResponse.setStatus(false);
 			reactResponse.setMessage("We are not calling an exorcist again.");
-			return Pair.of(reactResponse,HttpStatus.UNAUTHORIZED);
+			return Pair.of(reactResponse, HttpStatus.UNAUTHORIZED);
 		}
 		User user = userRepository.findById(reactRequest.getCurrentUserId()).orElse(null);
 		if (user == null) {
 			reactResponse.setStatus(false);
 			reactResponse.setMessage("Please sign up to like this post.");
-			return Pair.of(reactResponse,HttpStatus.UNAUTHORIZED);
+			return Pair.of(reactResponse, HttpStatus.UNAUTHORIZED);
 		} else {
 			reactResponse.setStatus(true);
 			if (post.addReactor(reactRequest.getCurrentUserId())) reactResponse.setMessage("post liked.");
@@ -220,7 +225,7 @@ public class PostService {
 				reactResponse.setMessage("post unliked.");
 			}
 			postRepository.save(post);
-			return Pair.of(reactResponse,HttpStatus.OK);
+			return Pair.of(reactResponse, HttpStatus.OK);
 		}
 	}
 }
