@@ -16,7 +16,7 @@ public class UserService {
 	private UserRepository userRepository;
 	@Value("${pepper}")
 	String pepper;
-
+	
 	public Pair<SignUpResponse, HttpStatus> register(User user) {
 		SignUpResponse signUpResponse = new SignUpResponse();
 		if (user == null) {
@@ -52,10 +52,12 @@ public class UserService {
 		userRepository.save(user);
 		signUpResponse.setStatus(true);
 		signUpResponse.setUserId(id);
+		signUpResponse.setUsername(user.getUsername());
+		signUpResponse.setDisplayPictureURI(user.getDisplayPictureURI());
 		signUpResponse.setMessage("User Successfully registered");
 		return Pair.of(signUpResponse, HttpStatus.CREATED);
 	}
-
+	
 	public Pair<SignInResponse, HttpStatus> authenticate(SignInRequest signInRequest) {
 		SignInResponse signInResponse = new SignInResponse();
 		if (signInRequest == null) {
@@ -80,6 +82,8 @@ public class UserService {
 			signInResponse.setStatus(true);
 			signInResponse.setMessage("Signed in successfully.");
 			signInResponse.setUserId(user.getId());
+			signInResponse.setUsername(user.getUsername());
+			signInResponse.setDisplayPictureURI(user.getDisplayPictureURI());
 			return Pair.of(signInResponse, HttpStatus.ACCEPTED);
 		} else {
 			signInResponse.setStatus(false);
@@ -87,7 +91,7 @@ public class UserService {
 			return Pair.of(signInResponse, HttpStatus.UNAUTHORIZED);
 		}
 	}
-
+	
 	public Pair<ProfileResponse, HttpStatus> getUser(String username) {
 		ProfileResponse profileResponse = new ProfileResponse();
 		if (username == null || username.trim().isEmpty()) {
@@ -107,7 +111,7 @@ public class UserService {
 			return Pair.of(profileResponse, HttpStatus.OK);
 		}
 	}
-
+	
 	public Pair<ProfileHeadResponse, HttpStatus> getUserHead(String username) {
 		ProfileHeadResponse profileHeadResponse = new ProfileHeadResponse();
 		if (username == null || username.trim().isEmpty()) {

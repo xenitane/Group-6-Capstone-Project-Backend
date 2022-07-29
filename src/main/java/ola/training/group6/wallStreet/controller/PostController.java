@@ -48,6 +48,12 @@ public class PostController {
 		return new ResponseEntity<>(postBodyList.getFirst(), postBodyList.getSecond());
 	}
 	
+	@GetMapping(value = "/feed")
+	public ResponseEntity<List<PostBody>> getFeed(@Nullable @RequestHeader("currentUserId") String currentUserId) {
+		Pair<List<PostBody>, HttpStatus> feed = postService.getFeed(currentUserId);
+		return new ResponseEntity<>(feed.getFirst(), feed.getSecond());
+	}
+	
 	@PatchMapping(value = "/post/{postId}/react")
 	public ResponseEntity<ReactResponse> reactOnPost(@PathVariable("postId") String postId, @RequestBody ReactRequest reactRequest) {
 		Pair<ReactResponse, HttpStatus> reactResponse = postService.doReaction(postId, reactRequest);

@@ -9,4 +9,6 @@ public class SignUpResponse {
 	private String message;
 	private boolean status;
 	private String userId;
+	private String username;
+	private String displayPictureURI;
 }

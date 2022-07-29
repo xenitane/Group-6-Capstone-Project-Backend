@@ -114,7 +114,6 @@ public class PostService {
 		boolean deletePermission = user != null && (post.getAuthorId().equals(user.getId()) || user.getRole() == UserRole.ADMIN);
 		if (deletePermission) {
 			postRepository.delete(post);
-//			commentRepository.deleteAllById(post.getCommentIDsOnThisPost());
 			for (String commentId : post.getCommentIDsOnThisPost()) commentRepository.deleteById(commentId);
 			deletePostResponse.setStatus(true);
 			deletePostResponse.setMessage("Post deleted successfully");
@@ -225,5 +224,13 @@ public class PostService {
 			postRepository.save(post);
 			return Pair.of(reactResponse, HttpStatus.OK);
 		}
+	}
+	
+	public Pair<List<PostBody>, HttpStatus> getFeed(String currentUserId) {
+		List<Post> postList = postRepository.findAll();
+		List<PostBody> postBodyList = new ArrayList<>();
+		for (Post post : postList)
+			postBodyList.add(new PostBody(post, currentUserId, new ProfileHead(userRepository.findById(post.getAuthorId()).orElse(null))));
+		return Pair.of(postBodyList, HttpStatus.OK);
 	}
 }

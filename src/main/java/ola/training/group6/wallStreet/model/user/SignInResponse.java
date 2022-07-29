@@ -9,4 +9,6 @@ public class SignInResponse {
 	private boolean status;
 	private String message;
 	private String userId;
+	private String username;
+	private String displayPictureURI;
 }
