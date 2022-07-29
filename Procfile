@@ -1,0 +1,1 @@
+web: java $JAVA_OPTS -jar target/wall-street-1.0.0.jar --server.port=$PORT $JAR_OPTS
