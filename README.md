@@ -1,8 +1,8 @@
 # Group-6-Capstone-Project-Backend
 
-> Hi zuku bhaiya if you are reading this.
+> Hi zukku bhaiya if you are reading this.
 
-## Social Media Application : Tribe
+## Social Media Application : Wall Street
 
 An application that allows a user to create new account and view and send posts.
 The application has the following functionalities:
