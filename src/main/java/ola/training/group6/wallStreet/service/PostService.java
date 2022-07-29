@@ -2,14 +2,12 @@ package ola.training.group6.wallStreet.service;
 
 
 import ola.training.group6.wallStreet.model.post.*;
-import ola.training.group6.wallStreet.repository.PostRepository;
-import ola.training.group6.wallStreet.repository.UserRepository;
-import ola.trainingGroup6.wallStreet.model.post.*;
-import mainpackage.socMedApp.model.post.*;
 import ola.training.group6.wallStreet.model.user.ProfileHead;
 import ola.training.group6.wallStreet.model.user.User;
 import ola.training.group6.wallStreet.model.user.UserRole;
 import ola.training.group6.wallStreet.repository.CommentRepository;
+import ola.training.group6.wallStreet.repository.PostRepository;
+import ola.training.group6.wallStreet.repository.UserRepository;
 import ola.training.group6.wallStreet.util.Generator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
