@@ -114,7 +114,8 @@ public class PostService {
 		boolean deletePermission = user != null && (post.getAuthorId().equals(user.getId()) || user.getRole() == UserRole.ADMIN);
 		if (deletePermission) {
 			postRepository.delete(post);
-			commentRepository.deleteAllById(post.getCommentIDsOnThisPost());
+//			commentRepository.deleteAllById(post.getCommentIDsOnThisPost());
+			for (String commentId : post.getCommentIDsOnThisPost()) commentRepository.deleteById(commentId);
 			deletePostResponse.setStatus(true);
 			deletePostResponse.setMessage("Post deleted successfully");
 			return Pair.of(deletePostResponse, HttpStatus.ACCEPTED);
