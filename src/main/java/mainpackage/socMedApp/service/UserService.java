@@ -5,6 +5,8 @@ import mainpackage.socMedApp.repository.UserRepository;
 import mainpackage.socMedApp.util.Generator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.util.Pair;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
@@ -15,20 +17,29 @@ public class UserService {
 	@Value("${pepper}")
 	String pepper;
 
-	public SignUpResponse register(User user) {
+	public Pair<SignUpResponse, HttpStatus> register(User user) {
 		SignUpResponse signUpResponse = new SignUpResponse();
-		if (user == null || user.getEmail() == null || user.getUsername() == null || user.getName() == null || user.getPassword() == null) {
+		if (user == null) {
 			signUpResponse.setStatus(false);
-			signUpResponse.setMessage("Some fields are empty.");
-			return signUpResponse;
+			signUpResponse.setMessage("Empty request.");
+			return Pair.of(signUpResponse, HttpStatus.BAD_REQUEST);
+		}
+		boolean emptyEmail = user.getEmail() == null || user.getEmail().trim().isEmpty();
+		boolean emptyUsername = user.getUsername() == null || user.getUsername().trim().isEmpty();
+		boolean emptyName = user.getName() == null || user.getName().trim().isEmpty();
+		boolean emptyPassword = user.getPassword() == null || user.getPassword().trim().isEmpty();
+		if (emptyEmail || emptyUsername || emptyName || emptyPassword) {
+			signUpResponse.setStatus(false);
+			signUpResponse.setMessage("Empty Parameter(s).");
+			return Pair.of(signUpResponse, HttpStatus.BAD_REQUEST);
 		} else if (userRepository.existsByEmail(user.getEmail())) {
 			signUpResponse.setStatus(false);
 			signUpResponse.setMessage("User with this email already exists.");
-			return signUpResponse;
+			return Pair.of(signUpResponse, HttpStatus.UNAUTHORIZED);
 		} else if (userRepository.existsByUsername(user.getUsername())) {
 			signUpResponse.setStatus(false);
 			signUpResponse.setMessage("User with this username already exists.");
-			return signUpResponse;
+			return Pair.of(signUpResponse, HttpStatus.UNAUTHORIZED);
 		}
 		String id;
 		do id = Generator.idGen(); while (userRepository.existsById(id));
@@ -42,58 +53,78 @@ public class UserService {
 		signUpResponse.setStatus(true);
 		signUpResponse.setUserId(id);
 		signUpResponse.setMessage("User Successfully registered");
-		return signUpResponse;
+		return Pair.of(signUpResponse, HttpStatus.CREATED);
 	}
 
-	public SignInResponse authenticate(SignInRequest signInRequest) {
+	public Pair<SignInResponse, HttpStatus> authenticate(SignInRequest signInRequest) {
 		SignInResponse signInResponse = new SignInResponse();
-		if (signInRequest == null || signInRequest.getCred() == null || signInRequest.getPassword() == null) {
+		if (signInRequest == null) {
 			signInResponse.setStatus(false);
-			signInResponse.setMessage("Some fields are empty.");
-			return signInResponse;
+			signInResponse.setMessage("Empty Request.");
+			return Pair.of(signInResponse, HttpStatus.BAD_REQUEST);
+		}
+		boolean emptyCred = signInRequest.getCred() == null || signInRequest.getCred().trim().isEmpty();
+		boolean emptyPassword = signInRequest.getPassword() == null || signInRequest.getPassword().trim().isEmpty();
+		if (emptyCred || emptyPassword) {
+			signInResponse.setStatus(false);
+			signInResponse.setMessage("Empty parameters.");
+			return Pair.of(signInResponse, HttpStatus.BAD_REQUEST);
 		}
 		User user = userRepository.findByUsername(signInRequest.getCred()).orElse(userRepository.findByEmail(signInRequest.getCred()).orElse(null));
 		if (user == null) {
 			signInResponse.setStatus(false);
 			signInResponse.setMessage("User with this email/username does not exist.");
-			return signInResponse;
+			return Pair.of(signInResponse, HttpStatus.BAD_REQUEST);
 		}
 		if (BCrypt.hashpw(signInRequest.getPassword() + pepper, user.getSalt()).equals(user.getPassword())) {
 			signInResponse.setStatus(true);
 			signInResponse.setMessage("Signed in successfully.");
 			signInResponse.setUserId(user.getId());
+			return Pair.of(signInResponse, HttpStatus.ACCEPTED);
 		} else {
 			signInResponse.setStatus(false);
 			signInResponse.setMessage("Incorrect Password.");
+			return Pair.of(signInResponse, HttpStatus.UNAUTHORIZED);
 		}
-		return signInResponse;
 	}
 
-	public ProfileResponse getUser(String userId) {
+	public Pair<ProfileResponse, HttpStatus> getUser(String username) {
 		ProfileResponse profileResponse = new ProfileResponse();
-		User user = userRepository.findByUsername(userId).orElse(null);
+		if (username == null || username.trim().isEmpty()) {
+			profileResponse.setStatus(false);
+			profileResponse.setMessage("Looking for a ghost?");
+			return Pair.of(profileResponse, HttpStatus.BAD_REQUEST);
+		}
+		User user = userRepository.findByUsername(username).orElse(null);
 		profileResponse.setProfile(user == null ? null : new Profile(user));
 		if (profileResponse.getProfile() == null) {
 			profileResponse.setStatus(false);
 			profileResponse.setMessage("No user with this username.");
+			return Pair.of(profileResponse, HttpStatus.NOT_FOUND);
 		} else {
 			profileResponse.setStatus(true);
-			profileResponse.setMessage("Here is the profile of user " + userId + ".");
+			profileResponse.setMessage("Here is the profile of user " + username + ".");
+			return Pair.of(profileResponse, HttpStatus.OK);
 		}
-		return profileResponse;
 	}
 
-	public ProfileHeadResponse getUserHead(String userid) {
+	public Pair<ProfileHeadResponse, HttpStatus> getUserHead(String username) {
 		ProfileHeadResponse profileHeadResponse = new ProfileHeadResponse();
-		User user = userRepository.findByUsername(userid).orElse(null);
+		if (username == null || username.trim().isEmpty()) {
+			profileHeadResponse.setStatus(false);
+			profileHeadResponse.setMessage("Looking for a ghost?");
+			return Pair.of(profileHeadResponse, HttpStatus.BAD_REQUEST);
+		}
+		User user = userRepository.findByUsername(username).orElse(null);
 		profileHeadResponse.setProfileHead(user == null ? null : new ProfileHead(user));
 		if (profileHeadResponse.getProfileHead() == null) {
 			profileHeadResponse.setStatus(false);
 			profileHeadResponse.setMessage("No user with this username.");
+			return Pair.of(profileHeadResponse, HttpStatus.NOT_FOUND);
 		} else {
 			profileHeadResponse.setStatus(true);
-			profileHeadResponse.setMessage("Here is the profile header of user " + userid + ".");
+			profileHeadResponse.setMessage("Here is the profile of user " + username + ".");
+			return Pair.of(profileHeadResponse, HttpStatus.OK);
 		}
-		return profileHeadResponse;
 	}
 }
