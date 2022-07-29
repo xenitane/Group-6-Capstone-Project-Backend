@@ -15,7 +15,7 @@ public class PostBody {
 	private String text;
 	private Integer likeCount;
 	private Integer commentCount;
-	private boolean isLikedByCurrentUser;
+	private boolean likedByCurrentUser;
 	private ProfileHead profileHead;
 
 	public PostBody(Post post, String currentUserId, ProfileHead profileHead) {
@@ -29,7 +29,7 @@ public class PostBody {
 			this.text = post.getText();
 			this.likeCount = post.getLikeCount();
 			this.commentCount = post.getCommentCount();
-			this.isLikedByCurrentUser = post.getUserIdsWhoLikedThisPost().contains(currentUserId);
+			this.likedByCurrentUser = post.getUserIdsWhoLikedThisPost().contains(currentUserId);
 			this.profileHead = profileHead;
 		}
 	}
