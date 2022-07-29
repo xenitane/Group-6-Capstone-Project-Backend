@@ -1,8 +1,6 @@
 package ola.training.group6.wallStreet.service;
 
-import mainpackage.socMedApp.model.comment.*;
 import ola.training.group6.wallStreet.model.comment.*;
-import ola.trainingGroup6.wallStreet.model.comment.*;
 import ola.training.group6.wallStreet.model.post.Post;
 import ola.training.group6.wallStreet.model.user.ProfileHead;
 import ola.training.group6.wallStreet.model.user.User;

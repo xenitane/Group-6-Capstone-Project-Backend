@@ -1,8 +1,6 @@
 package ola.training.group6.wallStreet.controller;
 
 import ola.training.group6.wallStreet.model.post.*;
-import ola.trainingGroup6.wallStreet.model.post.*;
-import mainpackage.socMedApp.model.post.*;
 import ola.training.group6.wallStreet.model.user.ProfileHead;
 import ola.training.group6.wallStreet.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +43,7 @@ public class PostController {
 	}
 	
 	@GetMapping(value = "/user/{username}/posts")
-	public ResponseEntity<List<PostBody>> getPostsByUsername(@PathVariable("username") String username,@Nullable @RequestHeader("currentUserId") String currentUserId) {
+	public ResponseEntity<List<PostBody>> getPostsByUsername(@PathVariable("username") String username, @Nullable @RequestHeader("currentUserId") String currentUserId) {
 		Pair<List<PostBody>, HttpStatus> postBodyList = postService.getPostsByUsername(username, currentUserId);
 		return new ResponseEntity<>(postBodyList.getFirst(), postBodyList.getSecond());
 	}

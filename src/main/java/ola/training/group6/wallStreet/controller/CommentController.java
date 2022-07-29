@@ -1,9 +1,7 @@
 package ola.training.group6.wallStreet.controller;
 
-import mainpackage.socMedApp.model.comment.*;
 import ola.training.group6.wallStreet.model.comment.*;
 import ola.training.group6.wallStreet.service.CommentService;
-import ola.trainingGroup6.wallStreet.model.comment.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;

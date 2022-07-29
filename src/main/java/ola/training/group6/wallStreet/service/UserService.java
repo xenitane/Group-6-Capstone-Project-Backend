@@ -1,9 +1,7 @@
 package ola.training.group6.wallStreet.service;
 
-import mainpackage.socMedApp.model.user.*;
 import ola.training.group6.wallStreet.model.user.*;
 import ola.training.group6.wallStreet.repository.UserRepository;
-import ola.trainingGroup6.wallStreet.model.user.*;
 import ola.training.group6.wallStreet.util.Generator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
